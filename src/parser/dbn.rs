@@ -25,6 +25,7 @@ pub fn decode_metadata(path: &PathBuf) -> Result<dbn::Metadata> {
     Ok(MetadataDecoder::new(reader).decode()?)
 }
 
+//test
 #[cfg(test)]
 mod test {
     use super::*;

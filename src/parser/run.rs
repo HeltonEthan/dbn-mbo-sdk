@@ -42,6 +42,7 @@ pub fn get_files(config: &Config) -> Result<Vec<PathBuf>> {
     Ok(files_in_dir)
 }
 
+//test
 #[cfg(test)]
 mod test {
     use super::*;
