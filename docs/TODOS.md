@@ -23,6 +23,9 @@
 **cli**
 - To be determined
 
+**engine**
+- [] Implement custom errors
+
 **tui**
 - To be determined
 
