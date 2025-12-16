@@ -1,15 +1,16 @@
-[package]
-name = "mbo-engine"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["crates/*", "cme-mbo-lib"]
+resolver = "2"
 
-[dependencies]
-chrono = "0.4.42"
-color-eyre = "0.6.5"
-dbn = "0.44.0"
-dbn-cli = "0.44.0"
-dbn-macros = "0.44.0"
-fallible-streaming-iterator = "0.1.9"
-indexmap = "2.12.1"
-rand = "0.9.2"
-zstd = "0.13.3"
+[workspace.dependencies]
+chrono = { version = "0.4.42" }
+color-eyre = { version = "0.6.5" }
+dbn = { version = "0.44.0" }
+dbn-cli = { version = "0.44.0" }
+dbn-macros = { version = "0.44.0" }
+fallible-streaming-iterator = { version = "0.1.9" }
+indexmap = { version = "2.12.1" }
+rand = { version = "0.9.2" }
+zstd = { version = "0.13.3" }
+cme_mbo_engine = { path = "crates/cme_mbo_engine", version = "0.1.0" }
+cme_mbo_internal = { path = "crates/cme_mbo_internal", version = "0.1.0" }

@@ -1,11 +1,11 @@
 use color_eyre::eyre::Result;
 use std::ffi::OsStr;
 use std::{fs, num::NonZero, path::PathBuf};
-
-use crate::Config;
+use crate::{
+    config::Config
+};
 use crate::parser::dbn;
 
-//gets the proper files to be run from the directory
 pub fn get_files(config: &Config) -> Result<Vec<PathBuf>> {
     let mut files_in_dir = Vec::new();
     for file in fs::read_dir(config.dir())? {
@@ -25,7 +25,6 @@ pub fn get_files(config: &Config) -> Result<Vec<PathBuf>> {
     Ok(files_in_dir)
 }
 
-//test
 #[cfg(test)]
 mod test {
     use super::*;

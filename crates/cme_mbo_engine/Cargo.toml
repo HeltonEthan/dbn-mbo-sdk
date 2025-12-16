@@ -1,0 +1,15 @@
+[package]
+name = "cme_mbo_engine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = { workspace = true }
+color-eyre = { workspace = true }
+dbn = { workspace = true }
+dbn-cli = { workspace = true }
+dbn-macros = { workspace = true }
+fallible-streaming-iterator = { workspace = true }
+indexmap = { workspace = true }
+rand = { workspace = true }
+zstd = { workspace = true }

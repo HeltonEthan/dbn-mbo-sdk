@@ -4,7 +4,6 @@ use std::path::PathBuf;
 
 use crate::helper;
 
-//config struct { directory, start, end }
 #[derive(Debug)]
 pub struct Config {
     pub dir: PathBuf,
@@ -13,7 +12,6 @@ pub struct Config {
 }
 
 impl Config {
-    //dates formatted as %Y-%m-%d (ie. 2024-03-10)
     pub fn new(dir: PathBuf, start: NaiveDate, end: NaiveDate) -> Self {
         Self { dir, start, end }
     }

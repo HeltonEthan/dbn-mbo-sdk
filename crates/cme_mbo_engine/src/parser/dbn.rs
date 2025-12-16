@@ -9,14 +9,14 @@ use dbn::{
 };
 use fallible_streaming_iterator::FallibleStreamingIterator;
 use std::{fs::File, io::BufReader, path::PathBuf};
-
-use crate::Config;
+use crate::{
+    config::Config
+};
 use crate::orderbook::market::Market;
 use crate::parser::file;
 
-//run function that starts a backtest
-//uses a callback function to give mbo_msgs to logic
-//iterate through the files, decode, and pass &mbo_msg thru the callback
+#[inline]
+#[allow(dead_code)]
 pub fn run<F: FnMut(&MboMsg) -> Option<Action>>(mut logic: F, cfg: &Config) -> Result<()> {
     let start_unix = cfg.start_unix()?;
     let end_unix = cfg.end_unix()?;
@@ -38,13 +38,11 @@ pub fn run<F: FnMut(&MboMsg) -> Option<Action>>(mut logic: F, cfg: &Config) -> R
     Ok(())
 }
 
-//decodes_metadata from a file given a path
 pub fn decode_metadata(path: &PathBuf) -> Result<dbn::Metadata> {
     let reader = zstd::stream::Decoder::new(BufReader::new(File::open(path)?)).unwrap();
     Ok(MetadataDecoder::new(reader).decode()?)
 }
 
-//test
 #[cfg(test)]
 mod test {
     use super::*;
