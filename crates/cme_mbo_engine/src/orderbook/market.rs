@@ -9,7 +9,6 @@ pub struct Market {
     books: HashMap<u32, Vec<(Publisher, Book)>>,
 }
 
-#[allow(dead_code)]
 impl Market {
     pub fn new() -> Self {
         Self::default()

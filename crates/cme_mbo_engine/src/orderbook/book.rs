@@ -12,7 +12,6 @@ pub struct Book {
 
 type Level = VecDeque<MboMsg>;
 
-#[allow(dead_code)]
 impl Book {
     pub fn new() -> Self {
         Self::default()
