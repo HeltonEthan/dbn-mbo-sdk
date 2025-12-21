@@ -1,5 +1,5 @@
 [package]
-name = "cme_mbo_sdk"
+name = "dbn_mbo_sdk"
 version = "0.1.0"
 edition = "2024"
 
