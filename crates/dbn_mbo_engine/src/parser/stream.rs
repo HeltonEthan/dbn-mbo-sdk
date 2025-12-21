@@ -1,7 +1,3 @@
-use crate::api::action::Order;
-use crate::orderbook::market::Market;
-use crate::parser::file;
-use crate::prelude::*;
 use dbn::{
     decode::{
         DecodeStream,
@@ -11,6 +7,11 @@ use dbn::{
 };
 use fallible_streaming_iterator::FallibleStreamingIterator;
 use std::{fs::File, io::BufReader, path::PathBuf};
+
+use crate::api::action::Order;
+use crate::orderbook::market::Market;
+use crate::parser::file;
+use crate::prelude::*;
 
 /// Run is the entry point of the engine
 ///

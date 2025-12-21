@@ -1,7 +1,8 @@
-use crate::config::Config;
-use crate::parser::stream;
 use std::ffi::OsStr;
 use std::{fs, num::NonZero, path::PathBuf};
+
+use crate::config::Config;
+use crate::parser::stream;
 
 /// Loops through all files in the directory and creates a Vec<PathBuf>
 /// of paths that you want to run<logic>() on.
