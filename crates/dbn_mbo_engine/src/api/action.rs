@@ -2,18 +2,32 @@ use dbn::{MboMsg, Side};
 
 use crate::api::latency::LatencyModel;
 
-/// Action types for making orders
+/// Request struct for making order
+#[derive(Debug, Clone)]
 pub enum Request {
-    Order(u16, u32, Side, i64, u32), // (publisher_id, instrument_id, side, price, size)
-    Cancel(u64),           // (order_id)
-    Modify(u64),           // (order_id)
+    New {
+        instrument_id: u32,
+        side: Side,
+        price: i64,
+        size: u32,
+    },
+    Cancel {
+        instrument_id: u32,
+        order_id: u64,
+    },
+    Modify {
+        instrument_id: u32,
+        order_id: u64,
+        new_price: Option<i64>,
+        new_size: Option<u32>,
+    },
 }
 
 #[allow(dead_code)]
 pub struct OrderRequest {
     order_id: u64,
-    ts_recv: u64,
     ts_event: u64,
+    ts_recv: u64,
     request: Request,
 }
 
@@ -23,15 +37,15 @@ impl OrderRequest {
         let ts_recv = latency.ts_recv_sim(ts_event);
         Self {
             order_id: Self::set_order_id(mbo),
-            ts_recv: ts_recv,
-            ts_event: ts_event,
+            ts_event,
+            ts_recv,
             request,
         }
     }
 
     pub fn set_order_id(mbo: &MboMsg) -> u64 {
         let _ = mbo;
-        0
+        todo!()
     }
 }
 
