@@ -1,8 +1,8 @@
-use std::f64::consts::PI;
 use rand::{
     Rng,
     distr::{OpenClosed01, StandardUniform},
 };
+use std::f64::consts::PI;
 
 pub trait LatencyModel {
     fn ts_recv_sim(&mut self, ts_event: u64) -> u64;

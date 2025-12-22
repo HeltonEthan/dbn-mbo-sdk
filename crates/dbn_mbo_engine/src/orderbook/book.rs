@@ -49,7 +49,7 @@ impl Book {
                     self.remove_level(old_side, old_price);
                     let level = self.get_or_insert_level(side, price);
                     level.push_back(mbo);
-                }
+                },
             }
         }
     }
