@@ -10,7 +10,7 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::{fs::File, io::BufReader, path::PathBuf};
 
 use crate::api::{
-    action::{Order, Request},
+    action::{Request},
     latency::LatencyModel,
 };
 use crate::orderbook::market::Market;
