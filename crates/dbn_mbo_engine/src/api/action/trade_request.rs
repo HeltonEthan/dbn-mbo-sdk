@@ -1,7 +1,7 @@
 use super::*;
 use dbn::{Action, Side};
 
-use crate::api_internal::submit::Order;
+use crate::api_internal::order::Order;
 
 #[derive(Debug)]
 pub struct TradeRequest {

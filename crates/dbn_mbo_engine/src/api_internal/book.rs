@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::api_internal::submit::Order;
+use crate::api_internal::order::Order;
 
 #[derive(Debug, Default)]
 pub struct Queue {
