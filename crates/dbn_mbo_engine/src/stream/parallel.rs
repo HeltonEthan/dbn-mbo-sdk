@@ -9,6 +9,7 @@ use crate::{
     stream::{Ext, process_dir},
 };
 
+#[allow(dead_code)]
 pub fn run(cfg: &Config) -> anyhow::Result<()> {
     for (ext, path) in process_dir(cfg.dir.as_path(), cfg.start, cfg.end)? {
         match ext {
