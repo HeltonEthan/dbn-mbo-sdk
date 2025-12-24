@@ -1,4 +1,4 @@
-use dbn::{Side};
+use dbn::Side;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum OrderState {
@@ -20,13 +20,7 @@ pub struct Order {
 }
 
 impl Order {
-    pub fn new(
-        ts_event: u64,
-        ts_recv: u64,
-        side: Side,
-        price: Option<i64>,
-        size: Option<u32>,
-    ) -> Self {
+    pub fn new(ts_event: u64, ts_recv: u64, side: Side, price: Option<i64>, size: Option<u32>) -> Self {
         Self {
             ts_recv,
             ts_event,

@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::api_internal::{book::{Active, Inactive, Queue}, order::Order};
+use crate::api_internal::{
+    book::{Active, Inactive, Queue},
+    order::Order,
+};
 
 #[derive(Debug, Default)]
 pub struct Books {

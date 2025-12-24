@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use dbn::Action;
+use std::collections::HashMap;
 
 use crate::api_internal::order::Order;
 
