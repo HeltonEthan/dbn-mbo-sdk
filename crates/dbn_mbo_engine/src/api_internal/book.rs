@@ -1,37 +1,38 @@
 use dbn::Action;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::api_internal::order::Order;
 
 #[derive(Debug, Default)]
-pub struct Queue {
-    orders_by_id: HashMap<u64, (Action, Order)>,
+pub struct Book {
+    orders_by_id: HashMap<(u64, Action), Order>,
+    queue: BTreeMap<u64, Order>,
+    active: BTreeMap<u64, Order>,
 }
 
-impl Queue {
-    pub fn apply(&mut self) {
+impl Book {
+    pub fn apply(&mut self, action: Action, order: Order) {
+        match action {
+            Action::Trade => {},
+            Action::Cancel => {},
+            Action::Modify => {},
+            _ => {},
+        }
+    }
+
+    fn trade(&mut self) {
         todo!()
     }
-}
 
-#[derive(Debug, Default)]
-pub struct Active {
-    orders_by_id: HashMap<u64, (Action, Order)>,
-}
-
-impl Active {
-    pub fn apply(&mut self) {
+    fn cancel(&mut self) {
         todo!()
     }
-}
 
-#[derive(Debug, Default)]
-pub struct Inactive {
-    orders_by_id: HashMap<u64, (Action, Order)>,
-}
-
-impl Inactive {
-    pub fn apply(&mut self) {
+    fn modify(&mut self) {
         todo!()
+    }
+
+    fn clear(&mut self) {
+        self.orders_by_id.clear()
     }
 }

@@ -1,23 +1,23 @@
 use std::collections::HashMap;
 
+use dbn::Action;
+
 use crate::api_internal::{
-    book::{Active, Inactive, Queue},
+    book::Book,
     order::Order,
 };
 
 #[derive(Debug, Default)]
-pub struct Books {
-    queue: HashMap<u32, Queue>,
-    active: HashMap<u32, Active>,
-    inactive: HashMap<u32, Inactive>,
+pub struct Market {
+    queue: HashMap<u32, Book>,
 }
 
-impl Books {
+impl Market {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn apply(instrument_id: u32, order: Order) {
+    pub fn apply(instrument_id: u32, action: Action, order: Order) {
         todo!()
     }
 }

@@ -1,7 +1,7 @@
 use super::*;
-use dbn::Side;
+use dbn::{Action, Side};
 
-use crate::api_internal::{market::Books, order::Order};
+use crate::api_internal::{market::Market, order::Order};
 
 #[derive(Debug)]
 pub struct ModifyRequest {
@@ -30,7 +30,7 @@ impl Submit for ModifyRequest {
         let order = Order::new(ts_recv, ts_event, Side::None, self.new_price, self.new_size);
         match self.check_request() {
             Ack::Accepted => {
-                Books::apply(self.instrument_id, order);
+                Market::apply(self.instrument_id, Action::Modify, order);
                 Ack::Accepted
             },
             Ack::Rejected => Ack::Rejected,
