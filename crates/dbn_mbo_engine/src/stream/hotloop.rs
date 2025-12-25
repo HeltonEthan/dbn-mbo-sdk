@@ -20,6 +20,8 @@ use crate::{
     stream::{Ext, process_dir},
 };
 
+/// Helper macro to iterate a DBN `DecodeStream` within the configured time window
+/// and dispatch each message to a [`ThreadPool`].
 macro_rules! iterstream {
     ($stream:expr, $cfg:expr, $tp:expr) => {{
         let mut dbn_stream = $stream;
@@ -30,17 +32,28 @@ macro_rules! iterstream {
             if mbo.ts_recv >= $cfg.end {
                 break;
             }
-            $tp.dispatch(Mbo::from(mbo));
+            $tp.dispatch_lossless(Mbo::from(mbo));
         }
         anyhow::Ok(())
     }};
 }
 
+/// Factory bundle for creating per-worker receivers/handlers.
+///
+/// Each worker thread gets its own:
+/// - `RM`: handler for [`Mbo`] messages
+/// - `RA`: handler for [`Ack`] messages
 pub struct RxMsg<MF, AF> {
     pub make_rm: MF,
     pub make_ra: AF,
 }
 
+/// A simple fixed-size thread pool that routes [`Mbo`] messages to workers
+/// using a ring-buffer per worker (SPSC queue).
+///
+/// # Routing
+/// Messages are routed by:
+/// `worker_index = (instrument_id as usize) & mask`
 pub struct ThreadPool {
     producers: Vec<Producer<Mbo>>,
     _handles: Vec<thread::JoinHandle<()>>,
@@ -49,6 +62,7 @@ pub struct ThreadPool {
 }
 
 impl ThreadPool {
+    /// Create a new thread pool.
     pub fn new<MF, AF, RM, RA>(rx_msg: RxMsg<MF, AF>, workers: usize, cap: usize) -> Self
     where
         MF: Fn() -> RM + Sync,
@@ -80,6 +94,10 @@ impl ThreadPool {
         }
     }
 
+    /// Dispatch a message to the worker responsible for its `instrument_id`.
+    ///
+    /// # Lossy behavior
+    /// If the worker's queue is full, the message is dropped.
     #[allow(dead_code)]
     #[inline]
     pub fn dispatch(&mut self, mbo: Mbo) {
@@ -87,7 +105,10 @@ impl ThreadPool {
         let _ = self.producers[idx].push(mbo);
     }
 
-    #[allow(dead_code)]
+    /// Dispatch a message, spin-waiting until it can be enqueued.
+    ///
+    /// This guarantees delivery to the worker queue, but can burn CPU
+    /// under sustained backpressure.
     #[inline]
     pub fn dispatch_lossless(&mut self, mut mbo: Mbo) {
         let idx = (mbo.instrument_id as usize) & self.mask;
@@ -102,6 +123,7 @@ impl ThreadPool {
         }
     }
 
+    /// Stop all workers and join their threads.
     pub fn shutdown(mut self) {
         self.running.store(false, Ordering::Release);
         for h in self._handles.drain(..) {
@@ -116,6 +138,13 @@ impl Drop for ThreadPool {
     }
 }
 
+/// Worker loop for a single consumer queue.
+///
+/// Spins while `running` is true; drains remaining messages after shutdown.
+///
+/// # Performance note
+/// Uses spin-waiting when the queue is empty. This is low-latency but can
+/// consume 100% CPU per idle thread.
 fn worker_loop<RM, RA>(
     _worker_idx: usize,
     mut cons: Consumer<Mbo>,
@@ -142,6 +171,11 @@ fn worker_loop<RM, RA>(
     }
 }
 
+/// Run the DBN stream processing pipeline:
+/// - builds a [`ThreadPool`]
+/// - iterates DBN/ZST files in `cfg.dir` within `[cfg.start, cfg.end)`
+/// - dispatches each record to a worker
+/// - shuts down the pool at the end
 #[allow(dead_code)]
 pub fn run<MF, AF, RM, RA>(cfg: &Config, rx_msg: RxMsg<MF, AF>) -> anyhow::Result<()>
 where
@@ -163,6 +197,7 @@ where
     Ok(())
 }
 
+/// Owned, compact representation of an MBO record used by the worker threads.
 #[allow(unused)]
 pub struct Mbo {
     ts_recv: u64,
