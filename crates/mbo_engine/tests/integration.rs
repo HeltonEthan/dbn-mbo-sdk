@@ -6,7 +6,7 @@ use mbo_engine::{
 };
 use std::path::PathBuf;
 
-// cargo test -p mbo_engine --test integration engine_test --release
+// cargo test -p mbo_engine --test integration engine_test --release -- --nocapture
 // samply record
 #[test]
 fn engine_test() -> anyhow::Result<()> {

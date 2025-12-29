@@ -13,11 +13,10 @@ use std::{
     },
     thread,
 };
+use hashbrown::HashMap;
 
 use crate::{
-    config::Config,
-    enums::Ack,
-    stream::{Ext, process_dir},
+    config::Config, enums::Ack, orderbook::book::{Book, LobMbo}, stream::{Ext, process_dir}
 };
 
 /// Helper macro to iterate a DBN `DecodeStream` within the configured time window
@@ -77,9 +76,10 @@ impl ThreadPool {
             producers.push(prod);
             let mut rx_mbo = (rx_msg.make_rm)();
             let mut rx_ack = (rx_msg.make_ra)();
+            let mut books: HashMap<u32, Book> = HashMap::new();
             let running_clone = Arc::clone(&running);
             handles.push(thread::spawn(move || {
-                worker_loop(worker_idx, cons, &mut rx_mbo, &mut rx_ack, running_clone)
+                worker_loop(worker_idx, cons, &mut rx_mbo, &mut rx_ack, &mut books, running_clone)
             }));
         }
         Self {
@@ -96,22 +96,23 @@ impl ThreadPool {
     #[inline]
     pub fn dispatch_lossless(&mut self, mut mbo: Mbo) {
         let idx = (mbo.instrument_id as usize) & self.mask;
-        loop {
+        while self.running.load(Ordering::Acquire) {
             match self.producers[idx].push(mbo) {
-                Ok(()) => break,
+                Ok(()) => return,
                 Err(PushError::Full(returned)) => {
                     mbo = returned;
                     hint::spin_loop();
-                },
+                }
             }
         }
+        panic!("ThreadPool stopped while dispatching");
     }
 
     /// Stop all workers and join their threads.
     pub fn shutdown(mut self) {
         self.running.store(false, Ordering::Release);
         for h in self._handles.drain(..) {
-            let _ = h.join();
+            h.join().unwrap();
         }
     }
 }
@@ -125,13 +126,13 @@ impl Drop for ThreadPool {
 /// Worker loop for a single consumer queue.
 ///
 /// # Performance note
-/// Uses spin waiting when the queue is empty. Can
-/// consume 100% CPU per idle thread.
+/// Uses spin waiting when the queue is empty.
 fn worker_loop<RM, RA>(
     _worker_idx: usize,
     mut cons: Consumer<Mbo>,
     rx_mbo: &mut RM,
     rx_ack: &mut RA,
+    books: &mut HashMap<u32, Book>,
     running: Arc<AtomicBool>,
 ) where
     RM: FnMut(Mbo),
@@ -140,6 +141,8 @@ fn worker_loop<RM, RA>(
     while running.load(Ordering::Acquire) {
         match cons.pop() {
             Ok(mbo) => {
+                let book = books.entry(mbo.instrument_id).or_insert_with(Book::new);
+                book.apply(LobMbo::from(&mbo));
                 (rx_mbo)(mbo);
                 _ = rx_ack;
             },
