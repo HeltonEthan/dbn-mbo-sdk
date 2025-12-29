@@ -152,6 +152,8 @@ fn worker_loop<RM, RA>(
         }
     }
     while let Ok(mbo) = cons.pop() {
+        let book = books.entry(mbo.instrument_id).or_insert_with(Book::new);
+        book.apply(LobMbo::from(&mbo));
         (rx_mbo)(mbo);
     }
 }
