@@ -3,11 +3,13 @@ use crate::{
     stream::hotloop::Mbo,
 };
 
+#[derive(Debug)]
 pub enum Ack {
     Accepted,
     Rejected,
 }
 
+#[derive(Debug)]
 pub enum Request {
     Trade(Trade),
     Modify(Modify),
@@ -15,11 +17,19 @@ pub enum Request {
 }
 
 impl Request {
-    pub fn process<L: LatencyModel>(self, mbo: &Mbo, l: &L) {
+    pub fn process<L: LatencyModel>(&mut self, mbo: &Mbo, l: &L) {
         match self {
-            Request::Trade(mut r) => r.submit(mbo, l),
-            Request::Modify(mut r) => r.submit(mbo, l),
-            Request::Cancel(mut r) => r.submit(mbo, l),
+            Request::Trade(r) => r.submit(mbo, l),
+            Request::Modify(r) => r.submit(mbo, l),
+            Request::Cancel(r) => r.submit(mbo, l),
+        }
+    }
+
+    pub fn ts_recv(&self) -> u64 {
+        match self {
+            Request::Trade(r) => r.ts_recv(),
+            Request::Modify(r) => r.ts_recv(),
+            Request::Cancel(r) => r.ts_recv(),
         }
     }
 }

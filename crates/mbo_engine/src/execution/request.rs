@@ -1,12 +1,17 @@
 use crate::{execution::latency::LatencyModel, stream::hotloop::Mbo};
 
+pub trait Process {
+    fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L);
+    fn ts_recv(&self) -> u64;
+}
+
+#[derive(Debug, Clone, Copy)]
 pub struct Trade {
     pub ts_event: u64,
     pub instrument_id: u32,
     pub side: i8,
     pub price: i64,
     pub size: u32,
-    pub order_id: u64,
     pub time_delta: u64,
 }
 
@@ -18,18 +23,24 @@ impl Trade {
             side,
             price,
             size,
-            order_id: 0,
             time_delta: 0,
         }
     }
+}
 
-    pub fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
+impl Process for Trade {
+    fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_event = mbo.ts_recv;
         self.time_delta = latency.time_delta(&self.ts_event);
         self.instrument_id = mbo.instrument_id;
     }
+
+    fn ts_recv(&self) -> u64 {
+        self.ts_event + self.time_delta
+    }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Modify {
     pub ts_event: u64,
     pub instrument_id: u32,
@@ -50,14 +61,21 @@ impl Modify {
             time_delta: 0,
         }
     }
+}
 
-    pub fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
+impl Process for Modify {
+    fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_event = mbo.ts_recv;
         self.time_delta = latency.time_delta(&self.ts_event);
         self.instrument_id = mbo.instrument_id;
     }
+
+    fn ts_recv(&self) -> u64 {
+        self.ts_event + self.time_delta
+    }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Cancel {
     pub ts_event: u64,
     pub instrument_id: u32,
@@ -74,10 +92,16 @@ impl Cancel {
             time_delta: 0,
         }
     }
+}
 
-    pub fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
+impl Process for Cancel {
+    fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_event = mbo.ts_recv;
         self.time_delta = latency.time_delta(&self.ts_event);
         self.instrument_id = mbo.instrument_id;
+    }
+
+    fn ts_recv(&self) -> u64 {
+        self.ts_event + self.time_delta
     }
 }
