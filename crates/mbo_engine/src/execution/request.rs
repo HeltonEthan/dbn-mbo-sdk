@@ -2,7 +2,6 @@ use crate::{execution::latency::LatencyModel, stream::hotloop::Mbo};
 
 pub trait Process {
     fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L);
-    fn ts_recv(&self) -> u64;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -12,7 +11,6 @@ pub struct Trade {
     pub side: i8,
     pub price: i64,
     pub size: u32,
-    pub time_delta: u64,
 }
 
 impl Trade {
@@ -23,7 +21,6 @@ impl Trade {
             side,
             price,
             size,
-            time_delta: 0,
         }
     }
 }
@@ -31,12 +28,8 @@ impl Trade {
 impl Process for Trade {
     fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_send = mbo.ts_recv;
-        self.time_delta = latency.time_delta(&self.ts_send);
         self.instrument_id = mbo.instrument_id;
-    }
-
-    fn ts_recv(&self) -> u64 {
-        self.ts_send + self.time_delta
+        let ts_recv = latency.ts_recv(&self.ts_send);
     }
 }
 
@@ -47,7 +40,6 @@ pub struct Modify {
     pub price: Option<i64>,
     pub size: Option<u32>,
     pub order_id: u64,
-    pub time_delta: u64,
 }
 
 impl Modify {
@@ -58,7 +50,6 @@ impl Modify {
             price,
             size,
             order_id,
-            time_delta: 0,
         }
     }
 }
@@ -66,12 +57,8 @@ impl Modify {
 impl Process for Modify {
     fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_send = mbo.ts_recv;
-        self.time_delta = latency.time_delta(&self.ts_send);
         self.instrument_id = mbo.instrument_id;
-    }
-
-    fn ts_recv(&self) -> u64 {
-        self.ts_send + self.time_delta
+        let ts_recv = latency.ts_recv(&self.ts_send);
     }
 }
 
@@ -97,11 +84,7 @@ impl Cancel {
 impl Process for Cancel {
     fn submit<L: LatencyModel>(&mut self, mbo: &Mbo, latency: &L) {
         self.ts_send = mbo.ts_recv;
-        self.time_delta = latency.time_delta(&self.ts_send);
         self.instrument_id = mbo.instrument_id;
-    }
-
-    fn ts_recv(&self) -> u64 {
-        self.ts_send + self.time_delta
+        let ts_recv = latency.ts_recv(&self.ts_send);
     }
 }

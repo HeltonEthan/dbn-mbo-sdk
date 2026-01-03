@@ -24,12 +24,4 @@ impl Request {
             Request::Cancel(r) => r.submit(mbo, l),
         }
     }
-
-    pub fn ts_recv(&self) -> u64 {
-        match self {
-            Request::Trade(r) => r.ts_recv(),
-            Request::Modify(r) => r.ts_recv(),
-            Request::Cancel(r) => r.ts_recv(),
-        }
-    }
 }

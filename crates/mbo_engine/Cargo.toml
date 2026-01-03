@@ -11,3 +11,4 @@ fallible-streaming-iterator = { workspace = true }
 rtrb = { workspace = true }
 chrono = { workspace = true }
 hashbrown = { workspace = true }
+rand = { workspace = true }

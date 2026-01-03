@@ -1,5 +1,5 @@
 pub mod model;
 
 pub trait LatencyModel {
-    fn time_delta(&self, ts_event: &u64) -> u64;
+    fn ts_recv(&self, ts_send: &u64) -> u64;
 }

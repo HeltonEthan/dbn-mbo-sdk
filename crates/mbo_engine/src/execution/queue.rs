@@ -14,8 +14,12 @@ impl WireQueue {
     }
 
     pub fn apply(&mut self, request: Request) {
-        let ts = request.ts_recv();
+        let ts = 0;
         self.queue.entry(ts).or_default().push_back(request);
+    }
+
+    pub fn pop_check(&mut self, ts: &u64) {
+        self.queue = self.queue.split_off(&(ts + 1));
     }
 }
 
